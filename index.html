@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>마음 진료소 체험판</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 다정하고 차분한 동네 진료소, 장난기 한 스푼
+   IDEA: 약국 처방전과 진료 접수증
+   PICTURE: 각 진료 화면의 조작 요소 자체, 마지막엔 도장이 찍힌 처방전
+   COLOUR and TYPE: 흰 종이와 진료소 파랑, 도장 빨강 / IBM Plex Sans KR
+   LAYOUT: 폰 한 열, 상단 진행 점, 하단 고정 공감 하트 */
+:root{color-scheme:light dark;--bg:light-dark(#eef2f6,#0f141a);--card:light-dark(#ffffff,#18202a);--ink:light-dark(#18212b,#e8edf2);--mute:light-dark(#5b6876,#9aa8b6);--line:light-dark(#d9e1ea,#2b3644);--acc:light-dark(#2453c8,#86a6ff);--accbg:light-dark(#e7eeff,#1c2a4a);--red:light-dark(#d9402a,#ff7a66);--redbg:light-dark(#fdebe7,#3a1e1a);--proj:light-dark(#18212b,#05080b);--projink:#eef3f8}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "IBM Plex Sans KR",system-ui,sans-serif;overflow-x:clip;padding-bottom:96px}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:12px max(4vw,16px);max-width:480px;margin:0 auto}
+.brand{font-weight:600;font-size:15px;display:flex;gap:6px;align-items:center}
+.dots{display:flex;gap:6px}.dots i{width:22px;height:5px;border-radius:3px;background:var(--line)}.dots i.on{background:var(--acc)}
+main{max-width:480px;margin:0 auto;padding:4px max(4vw,16px) 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 20px;margin-bottom:14px}
+.tag{font-size:13px;color:var(--acc);font-weight:600;margin:0 0 6px}
+h1{font-size:clamp(32px,9vw,42px);line-height:1.1;margin:4px 0 10px;text-wrap:balance}
+h2{font-size:22px;line-height:1.35;margin:0 0 16px;text-wrap:balance}
+p{margin:0 0 12px}.sub{color:var(--mute);font-size:14px}
+.primary{display:block;width:100%;min-height:52px;border:0;border-radius:14px;background:var(--acc);color:#fff;font-weight:600;font-size:16px;margin-top:16px}
+:root .primary{color:light-dark(#fff,#0f141a)}
+.primary:disabled{background:var(--line);color:var(--mute);cursor:default}
+.ghost{min-height:44px;border:1px solid var(--line);background:transparent;border-radius:12px;padding:0 14px}
+.opt{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;padding:0 16px;margin-bottom:8px;border:1px solid var(--line);border-radius:14px;background:transparent;font-size:16px;text-align:left;transition:opacity .2s}
+.opt.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:600}
+.opt.dim{opacity:.45}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:transparent}
+.chip.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:600}
+.msg{font-size:14px;color:var(--mute);text-align:center;min-height:24px;margin:10px 0 0}
+.proj{background:var(--proj);color:var(--projink);border-radius:16px;padding:18px;margin-bottom:14px}
+.proj .lbl{font-size:13px;color:#9fb0c2;margin:0 0 4px;display:flex;justify-content:space-between}
+.proj h3{font-size:20px;margin:0 0 14px;line-height:1.35}
+.bar{display:grid;grid-template-columns:7em minmax(0,1fr) 3em;gap:8px;align-items:center;font-size:14px;margin-bottom:8px}
+.bar .t{height:12px;background:#2c3947;border-radius:6px;overflow:hidden}.bar .t b{display:block;height:100%;background:#7ea2ff;border-radius:6px}
+.bar.me .t b{background:#ff7a66}.bar span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.big{font-size:clamp(40px,12vw,56px);font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.blanket{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:240px;border-radius:20px;border:1px solid var(--acc);background:var(--accbg);color:var(--acc);touch-action:manipulation;user-select:none;transition:transform .06s}
+.blanket:active{transform:scale(.97)}
+.timer{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:0 0 14px}.timer b{display:block;height:100%;background:var(--acc);width:100%}
+canvas.pad{display:block;width:100%;aspect-ratio:1;border:1.5px dashed var(--line);border-radius:18px;touch-action:none;background:var(--card)}
+.row{display:flex;gap:8px}.row>*{flex:1}
+input[type=range]{width:100%;accent-color:var(--acc);height:44px}
+.cmp{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 12px;font-size:15px;align-items:center}
+.cmp b{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}.cmp .h{font-size:13px;color:var(--mute);text-align:right}
+.bubble{display:inline-block;background:var(--accbg);padding:14px 20px;border-radius:4px 18px 18px 18px;font-size:22px;margin:4px 0 18px}
+.faces{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.face{min-height:84px;border:1px solid var(--line);border-radius:16px;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px}
+.pain{display:block;width:100%;padding:20px;margin-bottom:10px;border:1px solid var(--line);border-radius:16px;background:transparent;font-size:19px;font-weight:600;text-align:center}
+.wx{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wx button{min-height:110px;border:1px solid var(--line);border-radius:16px;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:15px;padding:8px}
+.wx button.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:600}
+.pile{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px}
+.stone{padding:14px 16px;min-height:56px;border:1.5px solid var(--line);background:var(--bg);font-size:14px;line-height:1.35;max-width:48%;transition:transform .2s,opacity .2s}
+.stone.in{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:600;transform:scale(.94)}
+.bag{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--acc);font-weight:600}
+.bagin{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:30px;margin-top:6px}.bagin span{font-size:13px;background:var(--accbg);color:var(--acc);padding:4px 10px;border-radius:999px}
+.stampgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stampgrid button{min-height:52px;border:1px solid var(--line);border-radius:14px;background:transparent}
+.stampgrid button.on{border-color:var(--red);color:var(--red);background:var(--redbg);font-weight:600}
+.stamp{width:104px;height:104px;border:3px solid var(--red);color:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:600;font-size:16px;line-height:1.25;transform:rotate(-14deg);margin:0 auto}
+.pop{animation:pop .35s ease-out}@keyframes pop{0%{transform:rotate(-14deg) scale(1.8);opacity:0}100%{transform:rotate(-14deg) scale(1);opacity:1}}
+.rx{position:relative;border-top:6px solid var(--acc)}
+.rx .head{display:flex;justify-content:space-between;font-size:13px;color:var(--mute);border-bottom:1px dashed var(--line);padding-bottom:10px;margin-bottom:14px}
+.rx h4{font-size:13px;color:var(--acc);margin:18px 0 6px;font-weight:600}
+.rx ul{margin:0;padding-left:1.1em}.rx li{margin-bottom:8px}
+.drug{background:var(--accbg);border-radius:12px;padding:12px 14px}.drug b{display:block;color:var(--acc)}
+.rx .stamp{position:absolute;right:16px;top:92px;width:88px;height:88px;font-size:14px;opacity:.9}
+.emp{font-size:19px;line-height:1.6;font-weight:600;margin:14px 0 16px;text-wrap:pretty}
+.foot{font-size:13px;color:var(--mute);border-top:1px dashed var(--line);padding-top:12px;margin-top:18px}
+.heartbar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;justify-content:center;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 40%)}
+#heart{display:flex;align-items:center;gap:8px;min-height:52px;padding:0 26px;border-radius:999px;border:1px solid var(--red);background:var(--card);color:var(--red);font-weight:600}
+#heart:active{transform:scale(.95)}
+.fx{position:fixed;inset:0;pointer-events:none;z-index:7;overflow:hidden}
+.fh{position:absolute;bottom:70px;color:var(--red);animation:up 1.6s ease-out forwards}
+@keyframes up{to{transform:translate(var(--dx),-60vh) scale(1.4);opacity:0}}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:13px;padding:8px 14px;border-radius:999px;z-index:8;white-space:nowrap;transition:opacity .4s}
+@media(prefers-reduced-motion:reduce){.fh,.pop{animation:none}.fh{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="var(--acc)"/><path d="M12 7v10M7 12h10" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>마음 진료소</div><div class="dots" id="dots" aria-label="진행 상황"></div></header>
+<main id="app"></main>
+<div class="heartbar"><button id="heart" aria-label="공감하기"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-9.2-8.6C1.2 8.2 3 4.5 6.6 4.5c2.1 0 3.4 1.2 4.4 2.6 1-1.4 2.3-2.6 4.4-2.6 3.6 0 5.4 3.7 3.8 6.9C19 15.6 12 20 12 20z" fill="currentColor"/></svg>공감 <span id="hc">0</span></button></div>
+<div class="fx" id="fx"></div>
+<script>
+{
+const $=s=>document.querySelector(s);
+const app=$('#app');
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const newNick=()=>pick(['졸린','수줍은','용감한','느긋한','바쁜','엉뚱한','다정한','배고픈'])+' '+pick(['수달','고양이','판다','펭귄','다람쥐','거북이','부엉이','햄스터'])+' #'+(10+Math.floor(Math.random()*80));
+let S;
+const reset=()=>{S={nick:newNick(),lock:-1,lockSec:0,lockChg:0,kicks:0,redraw:0,pts:[],fGiven:60,sGiven:60,fReal:0,sReal:0,fPts:[],judge:[],stones:[],wx:-1}};
+reset();
+let timers=[];const later=(f,ms)=>timers.push(setTimeout(f,ms));const every=(f,ms)=>timers.push(setInterval(f,ms));
+const clearT=()=>{timers.forEach(t=>{clearTimeout(t);clearInterval(t)});timers=[]};
+
+const LOCK=['성적','연애 이야기','가족 이야기','진짜 꿈','콤플렉스'];
+const MSGS=[['조장','네.'],['친구','ㅇㅇ'],['교수님','잠깐 통화 가능한가요?'],['동기','ㅋ'],['조장','나중에 얘기해']];
+const WX=['안 올 거야','우산 챙겨 나간다','그냥 안 나간다','비 맞는 것도 좋지'];
+
+const lockSvg=c=>`<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="${c?'M8 11V8a4 4 0 0 1 8 0v3':'M8 11V8a4 4 0 0 1 7.6-1.7'}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+const faceSvg=k=>{const m=['M8 14.5c1.2 1.6 2.4 2.2 4 2.2s2.8-.6 4-2.2','M8.5 15.5h7','M8 16.5c1.2-1.5 2.4-2 4-2s2.8.5 4 2'][k];const b=k===2?'<path d="M7.5 8.5l2.5 1.2M16.5 8.5L14 9.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>':'';return `<svg width="38" height="38" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="11" r="1.2" fill="currentColor"/><circle cx="15" cy="11" r="1.2" fill="currentColor"/>${b}<path d="${m}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`};
+const wxSvg=[
+'<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><g stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 4v5M20 31v5M4 20h5M31 20h5M8.7 8.7l3.5 3.5M27.8 27.8l3.5 3.5M8.7 31.3l3.5-3.5M27.8 12.2l3.5-3.5"/></g></svg>',
+'<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 20a15 13 0 0 1 30 0z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M20 20v11a3 3 0 0 1-6 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+'<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 19L20 7l14 12M10 16v16h20V16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><rect x="17" y="23" width="6" height="9" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>',
+'<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><path d="M11 23a6 6 0 0 1 1-12 8 8 0 0 1 15 2 5 5 0 0 1 1 10z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><g stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 28l-2 5M21 28l-2 5M28 28l-2 5"/></g></svg>'];
+
+const proj=(title,body)=>`<div class="proj"><p class="lbl"><span>발표 화면에는 이렇게 떠요</span><span>예시 데이터</span></p><h3>${title}</h3>${body}</div>`;
+const bars=(rows,me)=>rows.map((r,i)=>`<div class="bar${i===me?' me':''}"><span>${r[0]}</span><span class="t"><b style="width:${r[1]}%"></b></span><span>${r[1]}%</span></div>`).join('');
+const head=(n,t)=>`<p class="tag">${n}부 진료 · ${t}</p>`;
+const next=(label,dis)=>`<button class="primary" id="nx"${dis?' disabled':''}>${label}</button>`;
+const bindNext=f=>{const b=$('#nx');if(b)b.onclick=f};
+
+function roundness(p){if(p.length<8)return 0;let cx=0,cy=0;p.forEach(q=>{cx+=q[0];cy+=q[1]});cx/=p.length;cy/=p.length;const d=p.map(q=>Math.hypot(q[0]-cx,q[1]-cy));const m=d.reduce((a,b)=>a+b,0)/d.length;if(m<5)return 0;const sd=Math.sqrt(d.reduce((a,b)=>a+(b-m)**2,0)/d.length);const gap=Math.hypot(p[0][0]-p[p.length-1][0],p[0][1]-p[p.length-1][1])/m;return Math.round(clamp(100-sd/m*350-Math.max(0,gap-.15)*40,0,100))}
+function friendCircle(){const pts=[],ph=Math.random()*6,n=90;for(let i=0;i<n;i++){const t=-1.4+i/n*Math.PI*2*.93;const r=80*(1+.08*Math.sin(3*t+ph)+.04*(Math.random()-.5));pts.push([100+r*Math.cos(t),100+r*Math.sin(t)])}return pts}
+function pathSvg(p){if(!p.length)return '';let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;p.forEach(q=>{x0=Math.min(x0,q[0]);y0=Math.min(y0,q[1]);x1=Math.max(x1,q[0]);y1=Math.max(y1,q[1])});const s=170/Math.max(x1-x0,y1-y0,1),ox=(200-(x1-x0)*s)/2,oy=(200-(y1-y0)*s)/2;const d=p.map((q,i)=>(i?'L':'M')+((q[0]-x0)*s+ox).toFixed(1)+' '+((q[1]-y0)*s+oy).toFixed(1)).join('');return `<svg viewBox="0 0 200 200" style="width:62%;display:block;margin:0 auto 6px" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+
+const STONES=[['결국 혼자 남을 것 같아',0],['나는 왜 이것밖에 안 될까',1],['연락이 끊기면 어쩌지',0],['또 망쳤어',1],['다들 나 없이도 잘 지내는 것 같아',0],['다른 애들은 다 잘하는데',1]];
+const STAMPT={see:'가면도<br>괜찮아',blame:'다들<br>잊었어',perf:'이만하면<br>충분해',read:'그냥<br>바빴대',strict:'나한테도<br>친절히',fine:'지금<br>처럼만'};
+
+const steps=[
+{p:0,r(){app.innerHTML=`<section class="card"><p class="tag">명저읽기 · 나도 아직 나를 모른다</p><h1>마음 진료소</h1><p>발표를 들으며 다섯 번 짧게 진료를 받고, 마지막에 나만의 처방전을 받아 가요.</p>
+<svg viewBox="0 0 320 150" style="width:100%;margin:6px 0 10px" aria-hidden="true"><rect x="40" y="18" width="240" height="120" rx="14" fill="var(--accbg)" stroke="var(--acc)" stroke-width="2"/><path d="M40 52h240" stroke="var(--acc)" stroke-width="2" stroke-dasharray="6 6"/><text x="60" y="42" font-size="15" font-weight="600" fill="var(--acc)">처방전</text><g stroke="var(--acc)" stroke-width="3" stroke-linecap="round" opacity=".55"><path d="M60 76h120M60 96h150M60 116h90"/></g><circle cx="238" cy="98" r="28" fill="none" stroke="var(--red)" stroke-width="3" transform="rotate(-14 238 98)"/><text x="238" y="103" font-size="13" font-weight="600" text-anchor="middle" fill="var(--red)" transform="rotate(-14 238 98)">진료 완료</text></svg>
+<div class="cmp" style="grid-template-columns:auto 1fr"><span class="sub">접수번호</span><b style="text-align:left">${S.nick}</b></div>${next('접수하기')}
+<p class="sub" style="margin:16px 0 0">팀원용 체험판이에요. 실제 발표에서는 진행자가 화면을 넘기고, 모두의 응답이 발표 화면에 실시간으로 모여요. 아래 하트는 발표 중 공감될 때마다 누르는 버튼이에요.</p></section>`;bindNext(()=>go(1))}},
+
+{p:1,r(){const t0=Date.now();S.lock=-1;S.lockChg=0;S.lockSec=0;app.innerHTML=`<section class="card">${head(1,'타인의 시선')}<h2>이 중 딱 하나만<br>'나만 보기'로 잠근다면?</h2><div id="L"></div><p class="msg" id="m"></p>${next('1부 진료 마치기',true)}</section>`;
+const d=()=>{$('#L').innerHTML=LOCK.map((t,i)=>`<button class="opt ${S.lock===i?'on':S.lock>=0?'dim':''}" data-i="${i}"><span>${t}</span>${lockSvg(S.lock===i)}</button>`).join('');$('#L').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(S.lock<0)S.lockSec=Math.max(1,Math.round((Date.now()-t0)/1000));else if(S.lock!==+b.dataset.i)S.lockChg++;S.lock=+b.dataset.i;d();$('#m').textContent='잠금 완료. 잠가 둔 게 있다는 건 나를 지킬 줄 안다는 뜻이에요.';$('#nx').disabled=false})};d();bindNext(()=>go(2))}},
+
+{p:1,r(){const base=[12,9,17,14,22];base[S.lock]++;const tot=base.reduce((a,b)=>a+b,0);const rows=LOCK.map((t,i)=>[t,Math.round(base[i]/tot*100),i]).sort((a,b)=>b[1]-a[1]);
+app.innerHTML=`${proj('우리 반이 가장 많이 잠근 것',bars(rows,rows.findIndex(r=>r[2]===S.lock))+`<p style="font-size:14px;color:#c9d5e2;margin:12px 0 0">다들 하나쯤은 잠가 두고 살아요. 그건 이상한 게 아니라 건강한 거예요.</p>`)}<section class="card"><p class="sub" style="margin:0">빨간 막대가 내가 고른 항목이에요. 고르는 데 걸린 시간도 몰래 기록했어요: <b style="color:var(--ink)">${S.lockSec}초</b>${S.lockChg?`, 마음 바꾼 횟수 <b style="color:var(--ink)">${S.lockChg}번</b>`:''}</p>${next('2부로')}</section>`;bindNext(()=>go(3))}},
+
+{p:2,r(){let st='ready';app.innerHTML=`<section class="card">${head(2,'이불킥')}<h2>최근 가장 민망했던 순간을 떠올려 보세요. 그만큼 10초 동안 이불을 차세요!</h2><div class="timer"><b id="tb"></b></div><button class="blanket" id="bk"><svg viewBox="0 0 140 44" width="130" aria-hidden="true"><path d="M4 26Q20 8 36 26T68 26T100 26T136 26" fill="none" stroke="currentColor" stroke-width="3"/><path d="M4 38Q20 20 36 38T68 38T100 38T136 38" fill="none" stroke="currentColor" stroke-width="3"/></svg><span class="big" id="kc">${S.kicks||'시작'}</span><span id="kl" style="font-size:14px">${S.kicks?'다시 하려면 탭':'탭하면 시작돼요'}</span></button>${next('2부 진료 마치기',!S.kicks)}</section>`;
+$('#bk').onclick=()=>{if(st==='ready'){st='run';S.kicks=0;$('#kc').textContent='0';$('#kl').textContent='연타!';$('#nx').disabled=true;const t0=Date.now();every(()=>{const e=(Date.now()-t0)/1000;$('#tb').style.width=Math.max(0,100-e*10)+'%';if(e>=10){clearT();st='ready';$('#kl').textContent='끝! 탭하면 다시 할 수 있어요';$('#nx').disabled=false}},50);return}if(st==='run'){S.kicks++;$('#kc').textContent=S.kicks}};bindNext(()=>{clearT();go(4)})}},
+
+{p:2,r(){const tot=1284+S.kicks;
+app.innerHTML=`${proj('우리 반 누적 이불킥',`<div class="big" style="color:#ff7a66;margin-bottom:6px">${tot.toLocaleString()}회</div><p style="font-size:14px;color:#c9d5e2;margin:0">한 명당 평균 33회. 나만 그런 게 아니었어요.</p>`)}<section class="card"><p class="sub" style="margin:0">나는 10초 동안 <b style="color:var(--ink)">${S.kicks}번</b> 찼어요.</p>${next('3부로')}</section>`;bindNext(()=>go(5))}},
+
+{p:3,r(){app.innerHTML=`<section class="card">${head(3,'완벽주의')}<h2>손가락으로 완벽한 원을 그려 보세요</h2><canvas class="pad" id="cv"></canvas><div class="row" style="margin-top:10px"><button class="ghost" id="rd">다시 그리기</button><button class="ghost" id="ok" style="border-color:var(--acc);color:var(--acc);font-weight:600">이걸로 제출</button></div><p class="msg" id="m"></p></section>`;
+const cv=$('#cv'),ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1;const W=cv.clientWidth;cv.width=W*dpr;cv.height=W*dpr;ctx.scale(dpr,dpr);ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=getComputedStyle(document.body).color;
+let dr=false;S.pts=[];S.redraw=0;
+const pos=e=>{const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
+const wipe=()=>{if(S.pts.length){S.redraw++}ctx.clearRect(0,0,W,W);S.pts=[]};
+cv.onpointerdown=e=>{wipe();dr=true;cv.setPointerCapture(e.pointerId);const p=pos(e);S.pts.push(p);ctx.beginPath();ctx.moveTo(...p);$('#m').textContent=''};
+cv.onpointermove=e=>{if(!dr)return;const p=pos(e);S.pts.push(p);ctx.lineTo(...p);ctx.stroke()};
+cv.onpointerup=cv.onpointercancel=()=>{dr=false};
+$('#rd').onclick=wipe;
+$('#ok').onclick=()=>{if(S.pts.length<15){$('#m').textContent='먼저 원을 그려 주세요';return}S.sReal=roundness(S.pts);S.fPts=friendCircle();S.fReal=roundness(S.fPts);go(6)}}},
+
+{p:3,r(){app.innerHTML=`<section class="card">${head(3,'완벽주의')}<h2>친구가 그린 원이에요.<br>몇 점 줄래요?</h2>${pathSvg(S.fPts)}<div style="text-align:center" class="big" id="v">${S.fGiven}점</div><input type="range" min="0" max="100" step="1" value="${S.fGiven}" id="r" aria-label="친구 원 점수">${next('채점 완료')}</section>`;
+$('#r').oninput=e=>{S.fGiven=+e.target.value;$('#v').textContent=S.fGiven+'점'};bindNext(()=>go(7))}},
+
+{p:3,r(){app.innerHTML=`<section class="card">${head(3,'완벽주의')}<h2>이번엔 내가 그린 원이에요.<br>몇 점 줄래요?</h2>${pathSvg(S.pts)}<div style="text-align:center" class="big" id="v">${S.sGiven}점</div><input type="range" min="0" max="100" step="1" value="${S.sGiven}" id="r" aria-label="내 원 점수">${next('3부 진료 마치기')}</section>`;
+$('#r').oninput=e=>{S.sGiven=+e.target.value;$('#v').textContent=S.sGiven+'점'};bindNext(()=>go(8))}},
+
+{p:3,r(){const harsh=S.sGiven<S.fGiven&&S.sReal>=S.fReal;const msg=harsh?'내 원이 실제로는 더 동그랬는데도 나에게 더 낮은 점수를 줬어요.':S.sGiven<S.fGiven?'나에게 조금 더 엄격하게 채점했어요.':'나에게도 친구만큼 너그럽게 채점했어요.';
+app.innerHTML=`<section class="card">${head(3,'완벽주의')}<h2>같은 기준이었을까요?</h2><div class="cmp"><span></span><span class="h">친구 원</span><span class="h">내 원</span><span>내가 준 점수</span><b>${S.fGiven}</b><b>${S.sGiven}</b><span>실제 동그란 정도</span><b>${S.fReal}</b><b>${S.sReal}</b></div><p style="margin:16px 0 0">${msg}</p><p class="sub" style="margin:6px 0 0">다시 그린 횟수도 몰래 기록했어요: <b style="color:var(--ink)">${S.redraw}회</b></p></section>
+${proj('친구에겐 72점, 나에겐 51점',`<p style="font-size:14px;color:#c9d5e2;margin:0 0 12px">우리 반 평균 채점이에요. 실제 동그란 정도는 거의 같았어요.</p>`+bars([['친구 원',72],['내 원',51]],1)+`<p style="font-size:14px;color:#c9d5e2;margin:10px 0 0">평균 1.8번 다시 그렸어요.</p>`)}<div class="card" style="padding:14px 20px">${next('4부로')}</div>`;bindNext(()=>go(9))}},
+
+{p:4,r(){let i=0;S.judge=[];app.innerHTML=`<section class="card">${head(4,'퍼즐 놀이')}<h2 id="q">답장이 하나씩 빠르게 와요. 생각하지 말고 1초 안에 느낌대로 판정하세요!</h2><div id="g"><button class="primary" id="go">시작</button></div></section>`;
+const run=()=>{if(i>=MSGS.length){clearT();go(10);return}const [who,m]=MSGS[i];$('#q').textContent=`답장 ${i+1}/5`;$('#g').innerHTML=`<p class="sub" style="margin:0">${who}</p><div class="bubble">${m}</div><div class="timer"><b id="tb" style="transition:width 1.6s linear"></b></div><div class="faces">${['좋은 뜻','그냥','화났다'].map((t,k)=>`<button class="face" data-k="${k}">${faceSvg(k)}${t}</button>`).join('')}</div>`;requestAnimationFrame(()=>requestAnimationFrame(()=>{const tb=$('#tb');if(tb)tb.style.width='0%'}));
+const done=k=>{clearT();S.judge.push(k);i++;run()};$('#g').querySelectorAll('.face').forEach(b=>b.onclick=()=>done(+b.dataset.k));later(()=>done(null),1600)};
+$('#go').onclick=run}},
+
+{p:4,r(){S.stones=[];const order=[0,1,2,3,4,5].sort(()=>Math.random()-.5);const shapes=['46% 54% 52% 48% / 58% 44% 56% 42%','58% 42% 45% 55% / 48% 60% 40% 52%','40% 60% 55% 45% / 52% 46% 54% 48%','52% 48% 60% 40% / 44% 56% 46% 54%','48% 52% 42% 58% / 60% 42% 58% 40%','55% 45% 50% 50% / 46% 58% 42% 54%'];
+app.innerHTML=`<section class="card">${head(4,'당신의 우울은 어떤 종류인가요')}<h2>유난히 지친 날, 마음 가방에 든 돌이에요. 가장 무거운 돌 두 개를 골라 담아 주세요.</h2><div class="pile" id="P"></div><div class="bag"><svg viewBox="0 0 120 60" width="96" aria-hidden="true"><path d="M20 18h80l-8 38H28z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M42 18a18 14 0 0 1 36 0" fill="none" stroke="currentColor" stroke-width="3"/></svg><span id="bc">0 / 2</span></div><div id="bagin" class="bagin"></div><p class="msg" id="m"></p>${next('4부 진료 마치기',true)}</section>`;
+const d=()=>{$('#P').innerHTML=order.map((k,j)=>`<button class="stone ${S.stones.includes(k)?'in':''}" data-k="${k}" style="border-radius:${shapes[j]}">${STONES[k][0]}</button>`).join('');$('#bc').textContent=S.stones.length+' / 2';$('#bagin').innerHTML=S.stones.map(k=>`<span>${STONES[k][0]}</span>`).join('');
+$('#P').querySelectorAll('.stone').forEach(b=>b.onclick=()=>{const k=+b.dataset.k;if(S.stones.includes(k))S.stones=S.stones.filter(x=>x!==k);else{if(S.stones.length>=2)S.stones.shift();S.stones.push(k)}d()});
+const full=S.stones.length===2;$('#nx').disabled=!full;$('#m').textContent=full?"무거운 돌은 '왜'를 붙들수록 더 무거워져요. '어떻게'로 들어 보세요.":''};d();bindNext(()=>go(11))}},
+
+{p:4,r(){const fake=[41,33,58,47,62];const mine=S.judge.map(k=>k===2);const kind=deprKind();const dist=[['관계형',38],['자기비판형',44],['둘 다',18]];
+app.innerHTML=`${proj('"화났다"로 읽은 비율',MSGS.map((m,i)=>`<div class="bar${mine[i]?' me':''}"><span>${m[1]}</span><span class="t"><b style="width:${fake[i]}%"></b></span><span>${fake[i]}%</span></div>`).join('')+`<p style="font-size:14px;color:#c9d5e2;margin:12px 0 18px">'네.'를 화났다고 읽은 사람이 41%. 보낸 사람은 그냥 바빴을 뿐이에요.</p><p style="font-size:13px;color:#9fb0c2;margin:0 0 6px">우리 반 마음 가방</p>`+bars(dist,kind))}<section class="card"><p style="margin:0 0 6px">나의 마음 가방은 <b style="color:var(--acc)">${['관계에서 오는 우울','자기비판에서 오는 우울','두 가지가 섞인 우울'][kind]}</b>에 가까워요.</p><p class="sub" style="margin:0">${['버림받을까 봐, 혼자일까 봐 무거워지는 마음이에요. 사람으로 다친 마음은 사람으로 돌볼 수 있어요.','"나는 부족해"라는 목소리가 무거운 마음이에요. 그 목소리는 사실이 아니라 습관이에요.','관계도 나 자신도 동시에 버거운 날이에요. 오늘은 둘 중 가벼운 쪽부터 내려놓아요.'][kind]}</p>${next('5부로')}</section>`;bindNext(()=>go(12))}},
+
+{p:5,r(){app.innerHTML=`<section class="card">${head(5,'나를 대하는 태도')}<h2>내일 비 소식이 있어요.<br>당신은?</h2><div class="wx" id="W">${WX.map((t,i)=>`<button class="${S.wx===i?'on':''}" data-i="${i}">${wxSvg[i]}${t}</button>`).join('')}</div>${next('처방전 받기',S.wx<0)}</section>`;
+$('#W').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.wx=+b.dataset.i;$('#W').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('#nx').disabled=false});
+bindNext(()=>{app.innerHTML=`<section class="card" style="text-align:center;padding:60px 20px"><h2 style="margin:0 0 8px">처방전 조제 중…</h2><p class="sub">오늘 남긴 기록을 모으고 있어요</p></section>`;dots(6);later(()=>go(13),1800)})}},
+
+{p:6,r(){rx()}}
+];
+const deprKind=()=>{const r=S.stones.filter(k=>STONES[k][1]===0).length;return r===2?0:r===0?1:2};
+
+const NAMES={see:'레이더 풀가동형',blame:'밤마다 이불킥형',perf:'만점 아니면 0점형',read:'셜록 홈즈형',strict:'나한테만 엄격형',fine:'잘 걷는 지네형'};
+const LOCKO=['성적을','연애 이야기를','가족 이야기를','진짜 꿈을','콤플렉스를'];
+const RXS={
+see:['혼자 있는 시간에는 가면을 벗고 숨 한번 고르기.','모든 모습을 다 보여주지 않아도 된다고 하루 한 번 되뇌기.'],
+blame:['자기 전, 이불 차기 전에 버터플라이 허그 10초.','민망한 장면이 떠오르면 "다들 잊었어"라고 소리 내어 말하기.'],
+perf:['제출 버튼 누르기 직전, "되면 좋고 아니면 말고" 한 번.','오늘의 90점에서 빠진 10점 말고 채운 90점부터 보기.'],
+read:['짧은 답장이 오면 빈칸을 "그냥 바빴나 보다"로 채우기.','마음이 덜컥할 때 "아, 내 버튼이 눌렸구나" 하고 이름 붙이기.'],
+strict:['실수한 날엔 친구에게 하듯 나에게 말 걸기.','한 번의 실패가 나라는 사람 전체를 정하지 않는다는 걸 기억하기.'],
+fine:['힘든 날엔 "왜"보다 "오늘 저녁은 어떻게 보낼까"를 묻기.','걸음걸이를 너무 따지지 말고, 지금처럼 걷기.']};
+
+function rx(){
+const see=clamp(Math.round(S.lockSec*10+S.lockChg*20),0,100);
+const blame=clamp(Math.round(S.kicks/60*100),0,100);
+const redS=clamp(S.redraw*25,0,100),strictness=(S.fGiven-S.sGiven)-(S.fReal-S.sReal),strictS=clamp(50+strictness,0,100);
+const perf=Math.round(redS*.6+strictS*.4);
+const angry=S.judge.filter(k=>k===2).length;
+const read=Math.round(S.judge.reduce((a,k)=>a+(k===null?1:k),0)/10*100);
+const kind=clamp(Math.round([55,85,35,80][S.wx]-Math.max(0,strictness)/2),0,100);
+const burden={see,blame,perf,read,strict:100-kind};
+let top='fine',mx=49;for(const k in burden)if(burden[k]>mx){mx=burden[k];top=k}
+const heavy=STONES[S.stones[S.stones.length-1]][0];
+const EMP={
+see:[S.lockSec>=3&&`잠글 것 하나 고르는 데 ${S.lockSec}초를 고민한 당신. 보여줄지 말지 고민하는 건 그만큼 나를 소중히 다룬다는 뜻이에요.`,S.lockChg&&`잠글 것을 고르다 마음을 ${S.lockChg}번 바꿨죠. 그 망설임마저 나를 지키려는 마음이에요.`,`${LOCKO[S.lock]} 잠가 둔 당신. 다 보여주지 않아도 당신은 충분히 진짜예요.`],
+blame:[`10초 동안 이불을 ${S.kicks}번 찬 당신. 그 장면, 상대는 이미 기억도 못 할 거예요.`,`이불을 ${S.kicks}번이나 찼네요. 그만큼 잘하고 싶었던 거예요.`],
+perf:[S.redraw&&`원을 ${S.redraw}번 다시 그린 당신. 그 전의 원도 충분히 동그랬어요.`,`친구 원엔 ${S.fGiven}점, 내 원엔 ${S.sGiven}점. 친구에게 준 만큼만 나에게도 줘 보세요.`],
+read:[S.judge[0]===2&&`'네.' 한마디에 마음이 덜컥했죠? 보낸 사람은 그냥 바빴을 거예요.`,`짧은 답장 다섯 개 중 ${angry}개를 화난 걸로 읽은 당신. 대부분의 마침표는 그냥 마침표예요.`],
+strict:[`친구 원엔 ${S.fGiven}점, 내 원엔 ${S.sGiven}점을 준 당신. 실제로는 ${S.sReal>=S.fReal?'내 원이 더 동그랬어요':'둘이 거의 비슷했어요'}.`,'남에게 건네던 "괜찮아"를 오늘은 나에게 먼저 건네 볼래요?'],
+fine:[`"${heavy}"라는 돌을 들고도 여기까지 잘 걸어온 당신. 오늘은 조금 내려놓아도 괜찮아요.`,'지금 꽤 괜찮게 걷고 있어요. 그걸 알아차리는 것만으로도 충분해요.']};
+const emp=pick(EMP[top].filter(Boolean)),cure=pick(RXS[top]);
+const vals=[see,blame,perf,read,kind],labs=['시선','자책','완벽주의','해석','너그러움'];
+const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/5;return[(150+r*Math.cos(a)).toFixed(1),(118+r*Math.sin(a)).toFixed(1)]};
+const poly=r=>[0,1,2,3,4].map(i=>pt(i,r).join(',')).join(' ');
+const radar=`<svg viewBox="0 0 300 240" style="width:100%;max-width:300px;display:block;margin:4px auto 0" role="img" aria-label="다섯 축 점수: ${labs.map((l,i)=>l+' '+vals[i]).join(', ')}"><polygon points="${poly(80)}" fill="none" stroke="var(--line)" stroke-width="1.5"/><polygon points="${poly(40)}" fill="none" stroke="var(--line)"/>${[0,1,2,3,4].map(i=>`<line x1="150" y1="118" x2="${pt(i,80)[0]}" y2="${pt(i,80)[1]}" stroke="var(--line)"/>`).join('')}<polygon points="${vals.map((v,i)=>pt(i,Math.max(6,v*.8)).join(',')).join(' ')}" fill="var(--acc)" fill-opacity=".22" stroke="var(--acc)" stroke-width="2.5" stroke-linejoin="round"/>${labs.map((l,i)=>{const p=pt(i,102);return `<text x="${p[0]}" y="${+p[1]+5}" text-anchor="middle" font-size="13" fill="var(--mute)">${l} ${vals[i]}</text>`}).join('')}</svg>`;
+const today=new Date();const ds=`${today.getFullYear()}.${today.getMonth()+1}.${today.getDate()}`;
+app.innerHTML=`<section class="card rx"><div class="head"><span>처방전 · ${ds}</span><span>${S.nick}</span></div><p class="sub" style="margin:0">진단명</p><h1 style="font-size:30px;margin:2px 0 8px;padding-right:96px">${NAMES[top]}</h1><div class="stamp pop">${STAMPT[top]}</div>${radar}
+<p class="emp">${emp}</p>
+<div class="drug"><b>처방</b>${cure}</div>
+<p class="foot">이건 진단이 아니라 오늘 하루의 기록이에요. 우리는 아직 우리를 다 모르니까요.</p></section>
+<div class="card" style="padding:14px 20px"><button class="ghost" id="again" style="width:100%">처음부터 다시 해 보기</button></div>`;
+$('#again').onclick=()=>{reset();go(0)}}
+
+function dots(p){$('#dots').innerHTML=[1,2,3,4,5].map(i=>`<i class="${i<=p?'on':''}"></i>`).join('')}
+function go(n){clearT();window.scrollTo(0,0);dots(steps[n].p);steps[n].r()}
+
+let hc=0,toasted=false;
+$('#heart').onclick=()=>{hc++;$('#hc').textContent=hc;const fx=$('#fx');for(let k=0;k<3;k++){const h=document.createElement('div');h.className='fh';h.style.left=(50+(Math.random()-.5)*16)+'%';h.style.setProperty('--dx',((Math.random()-.5)*120)+'px');h.style.animationDelay=(k*.12)+'s';h.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9.2-8.6C1.2 8.2 3 4.5 6.6 4.5c2.1 0 3.4 1.2 4.4 2.6 1-1.4 2.3-2.6 4.4-2.6 3.6 0 5.4 3.7 3.8 6.9C19 15.6 12 20 12 20z" fill="currentColor"/></svg>';fx.appendChild(h);setTimeout(()=>h.remove(),2000)}
+if(!toasted){toasted=true;const t=document.createElement('div');t.className='toast';t.textContent='실제 발표에선 이 하트가 발표 화면에 떠올라요';document.body.appendChild(t);setTimeout(()=>{t.style.opacity=0;setTimeout(()=>t.remove(),500)},2400)}};
+
+go(0);
+}
+</script>
+</body>
+</html>
